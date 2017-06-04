@@ -50,7 +50,7 @@ public class MainWindow extends JFrame
 
         for (int i = 0; i < N * N; ++i) {
             whiteCircles.add(
-                    Circle.builder().x(i * 40 + 150).y(10)
+                    Circle.builder().x(i * 40 + 150).y(HEIGHT/12)
                             .rad(10).color(Color.WHITE)
                             .build()
             );
@@ -320,14 +320,6 @@ public class MainWindow extends JFrame
         g.setColor(Color.ORANGE);
         g.fillRect(0, HEIGHT * 9 / 10, WIDTH, HEIGHT / 10);
 
-        g.setColor(Color.BLACK);
-        g.drawString("ИИ", 10, 10);
-        g.drawString("Игрок", 10, 9 * HEIGHT / 10 + 10);
-
-        circles.forEach(
-                circle -> drawCircleByCenter(g, circle)
-        );
-
         g.setColor(RED);
         g.drawRect(20,HEIGHT*6/10,WIDTH/8,HEIGHT/5);
         g.drawRect(WIDTH*7/10,HEIGHT/5,WIDTH/8,HEIGHT/5);
@@ -336,6 +328,13 @@ public class MainWindow extends JFrame
         g.drawString("Поле игрока", 20,HEIGHT*6/10);
         g.drawString("Поле ИИ", WIDTH*7/10,HEIGHT/5);
 
+        g.setColor(Color.BLACK);
+        g.drawString("ИИ", 10, HEIGHT/10);
+        g.drawString("Игрок", 10, 9 * HEIGHT / 10 + 10);
+
+        circles.forEach(
+                circle -> drawCircleByCenter(g, circle)
+        );
     }
 
     private void drawCircleByCenter(Graphics g, Circle circle) {
