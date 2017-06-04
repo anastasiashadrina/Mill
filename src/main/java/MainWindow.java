@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +38,7 @@ public class MainWindow extends JFrame
     private final List<Circle> circles;
     private final List<Quad> quads;
     private final List<Point> centers;
+    private boolean isDropped = false;
 
     private State state;
 
@@ -143,17 +145,18 @@ public class MainWindow extends JFrame
         }
     }
 
-    private static List<Circle> inGameCircles(List<Circle> circles) {
+    public static List<Circle> inGameCircles(List<Circle> circles) {
         return circles.stream().filter(Circle::isInGame).collect(Collectors.toList());
     }
 
-    private static List<Circle> notInGameCircles(List<Circle> circles) {
+    public static List<Circle> notInGameCircles(List<Circle> circles) {
         return circles.stream().filter(circle -> !circle.isInGame()).collect(Collectors.toList());
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
         if (state == State.DROP) {
+            final AtomicBoolean isWhiteMakeStep = new AtomicBoolean(false);
             blackCircles.stream()
                     .filter(Circle::isDragged)
                     .forEach(
@@ -162,15 +165,12 @@ public class MainWindow extends JFrame
                                     circle.setX(curCircle.getX());
                                     circle.setY(curCircle.getY());
                                 } else {
+                                    isWhiteMakeStep.set(true);
                                     circle.setInGame(true);
                                 }
                                 circle.release();
                             }
                     );
-
-            if (isTriple(whiteCircles)) {
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! white");
-            }
             if (isTriple(blackCircles)) {
                 int n = JOptionPane.showConfirmDialog(
                         this,
@@ -182,6 +182,14 @@ public class MainWindow extends JFrame
                     state = State.REMOVE_CIRCLE;
                 }
             }
+
+            if (isWhiteMakeStep.get()) {
+                whiteMakeStep();
+            }
+            if (isTriple(whiteCircles)) {
+                whiteRemoveBlackCircle();
+            }
+
         } else if (state == State.REMOVE_CIRCLE) {
             whiteCircles.stream()
                     .filter(Circle::isDragged)
@@ -191,8 +199,8 @@ public class MainWindow extends JFrame
                                 if (isInTreat(circle)){
                                     circle.setInTreat(true);
                                     state = State.DROP;
+                                    whiteMakeStep();
                                 } else {
-
                                     circle.setX(curCircle.getX());
                                     circle.setY(curCircle.getY());
                                 }
@@ -202,6 +210,24 @@ public class MainWindow extends JFrame
         }
 
         repaint();
+    }
+
+    private void whiteRemoveBlackCircle() {
+        final Optional<Circle> any = blackCircles
+                .stream()
+                .filter(
+                        circle -> circle.isInGame() && !circle.isInTreat()
+                )
+                .findAny();
+
+        if (any.isPresent()) {
+            final Circle circle = any.get();
+
+            circle.setInTreat(true);
+
+            circle.setX((int) (WIDTH*7/10 + random.nextDouble()*WIDTH/8));
+            circle.setY((int) (HEIGHT/5 + random.nextDouble()*HEIGHT/5));
+        }
     }
 
     private boolean isInTreat(Circle circle) {
@@ -215,6 +241,9 @@ public class MainWindow extends JFrame
     private boolean isInPosition(Circle circle) {
         final Optional<Point> any = centers.stream()
                 .filter(
+                        center -> !center.getCircle().isPresent()
+                )
+                .filter(
                         center -> abs(circle.getX() - center.getX()) < 20 &&
                                 abs(circle.getY() - center.getY()) < 20
                 )
@@ -227,30 +256,32 @@ public class MainWindow extends JFrame
 
             point.setCircle(Optional.of(circle));
 
-            final List<Point> collect = centers.stream()
-                    .filter(
-                            center -> !center.getCircle().isPresent()
-                    )
-                    .collect(Collectors.toList());
-
-            final Point center = collect.get(random.nextInt(collect.size()));
-            final Optional<Circle> first = whiteCircles.stream()
-                    .filter(c -> !c.isInGame())
-                    .findFirst();
-
-            if (first.isPresent()) {
-                center.setCircle(first);
-                final Circle c = first.get();
-                c.setInGame(true);
-                c.setX(center.getX());
-                c.setY(center.getY());
-            } else {
-                System.out.println("ERROR!!!");
-            }
-
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void whiteMakeStep() {
+        final List<Point> collect = centers.stream()
+                .filter(
+                        center -> !center.getCircle().isPresent()
+                )
+                .collect(Collectors.toList());
+
+        final Point center = collect.get(random.nextInt(collect.size()));
+        final Optional<Circle> first = whiteCircles.stream()
+                .filter(c -> !c.isInGame())
+                .findFirst();
+
+        if (first.isPresent()) {
+            center.setCircle(first);
+            final Circle c = first.get();
+            c.setInGame(true);
+            c.setX(center.getX());
+            c.setY(center.getY());
+        } else {
+            System.out.println("ERROR!!!");
         }
     }
 
@@ -278,7 +309,6 @@ public class MainWindow extends JFrame
         );
 
         g.setColor(RED);
-
 
         centers.forEach(
                 point -> drawCircleByCenter(g, point.getX(), point.getY(), DOT_SIZE)
@@ -341,7 +371,7 @@ public class MainWindow extends JFrame
                 ).collect(Collectors.toList());
     }
 
-    private static boolean isTriple(List<Circle> circles) {
+    public static boolean isTriple(List<Circle> circles) {
         List<Circle> tempCircles = circles.stream().filter(Circle::isInGame).collect(Collectors.toList());
 
         for (int i = 0; i < tempCircles.size(); ++i) {
@@ -376,7 +406,7 @@ public class MainWindow extends JFrame
         return false;
     }
 
-    private static boolean checkX(Circle circle1, Circle circle2, Circle circle3) {
+    public static boolean checkX(Circle circle1, Circle circle2, Circle circle3) {
         final boolean b = circle1.getX() == circle2.getX() && circle1.getX() == circle3.getX() &&
                 abs(circle1.getY() - circle2.getY()) == abs(circle2.getY() - circle3.getY()) &&
                 circle1.getY() != circle2.getY() && circle1.getY() != circle3.getY();
@@ -392,7 +422,7 @@ public class MainWindow extends JFrame
         }
     }
 
-    private static boolean checkY(Circle circle1, Circle circle2, Circle circle3) {
+    public static boolean checkY(Circle circle1, Circle circle2, Circle circle3) {
         final boolean b = circle1.getY() == circle2.getY() && circle1.getY() == circle3.getY() &&
                 abs(circle1.getX() - circle2.getX()) == abs(circle2.getX() - circle3.getX()) &&
                 circle1.getX() != circle2.getX() && circle1.getX() != circle3.getX();
