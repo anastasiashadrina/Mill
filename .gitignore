@@ -1,0 +1,6 @@
+.gradle
+.idea
+.nb-gradle
+build
+mill.iml
+gradle
