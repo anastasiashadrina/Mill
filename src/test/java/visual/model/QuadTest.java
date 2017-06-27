@@ -26,11 +26,7 @@ public class QuadTest {
                 .isEqualTo(150);
     }
 
-    public static Quad createQuad() {
-        return Quad.builder()
-                .x(100)
-                .y(100)
-                .size(100)
-                .build();
+    private static Quad createQuad() {
+        return new Quad(100,100,100);
     }
 }

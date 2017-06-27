@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChipTest {
     @Test
     public void testConstruct() {
-        Chip chip = new Chip(Color.WHITE);
+        final Chip chip = new Chip(Color.WHITE);
 
         assertThat(chip.getColor())
                 .isEqualToComparingFieldByField(Color.WHITE);
@@ -21,7 +21,7 @@ public class ChipTest {
 
     @Test
     public void testSetter() {
-        Chip chip = new Chip(Color.WHITE);
+        final Chip chip = new Chip(Color.WHITE);
 
         chip.setColor(Color.BLACK);
 

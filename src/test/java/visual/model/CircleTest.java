@@ -42,12 +42,7 @@ public class CircleTest {
         assertThat(circle.isInTreat()).isTrue();
     }
 
-    public static Circle createCircle() {
-        return Circle.builder()
-                .x(100)
-                .y(200)
-                .rad(10)
-                .color(Color.YELLOW)
-                .build();
+    private static Circle createCircle() {
+        return new Circle (100,200,10,Color.YELLOW);
     }
 }

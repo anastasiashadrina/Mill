@@ -12,16 +12,78 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created on 01.06.17.
  */
 public class MainWindowTest {
+    private static List<Circle> createCircleList() {
+        return Arrays.asList(
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, true, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, true, false, false)
+        );
+    }
 
+    private static List<Circle> noTripleCircleList() {
+        return Arrays.asList(
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, false, false, false),
+                new Circle(100, 100, 50, Color.WHITE, false, true, false, false)
+        );
+    }
+
+    private static List<Circle> tripleCircleList() {
+        return Arrays.asList(
+                new Circle(100, 100, 50, Color.WHITE, false, true, false, false),
+                new Circle(100, 150, 50, Color.WHITE, false, true, false, false),
+                new Circle(100, 200, 50, Color.WHITE, false, true, false, false)
+        );
+    }
+
+    private static List<Circle> checkXTrueCircleList() {
+        return Arrays.asList(
+                new Circle(100, 100, 50, Color.WHITE, false, true, false, false),
+                new Circle(100, 150, 50, Color.WHITE, false, true, false, false),
+                new Circle(100, 200, 50, Color.WHITE, false, true, false, false)
+        );
+    }
+
+    private static List<Circle> checkXFalseCircleList() {
+        return Arrays.asList(
+                new Circle(100, 100, 50, Color.WHITE, false, true, false, false),
+                new Circle(120, 200, 50, Color.WHITE, false, true, false, false),
+                new Circle(100, 250, 50, Color.WHITE, false, true, false, false)
+        );
+    }
+
+    private static List<Circle> checkYTrueCircleList() {
+        return Arrays.asList(
+                new Circle(100, 100, 50, Color.WHITE, false, true, false, false),
+                new Circle(150, 100, 50, Color.WHITE, false, true, false, false),
+                new Circle(200, 100, 50, Color.WHITE, false, true, false, false)
+        );
+    }
+
+    private static List<Circle> checkYFalseCircleList() {
+        return Arrays.asList(
+                new Circle(100, 100, 50, Color.WHITE, false, true, false, false),
+                new Circle(100, 150, 50, Color.WHITE, false, true, false, false),
+                new Circle(100, 200, 50, Color.WHITE, false, true, false, false)
+        );
+    }
 
     @Test
     public void inGameCircles() throws Exception {
         final List<Circle> circleList = createCircleList();
 
         assertThat(
-                MainWindow.inGameCircles(circleList)
+                MainWindowUtils.inGameCircles(circleList)
         )
-                .containsOnly(circleList.get(6),circleList.get(7));
+                .containsOnly(circleList.get(6), circleList.get(7));
     }
 
     @Test
@@ -29,7 +91,7 @@ public class MainWindowTest {
         final List<Circle> circleList = createCircleList();
 
         assertThat(
-                MainWindow.notInGameCircles(circleList)
+                MainWindowUtils.notInGameCircles(circleList)
         )
                 .containsOnly(
                         circleList.get(0),
@@ -46,7 +108,7 @@ public class MainWindowTest {
         final List<Circle> circleList = noTripleCircleList();
 
         assertThat(
-                MainWindow.isTriple(circleList)
+                MainWindowUtils.isTriple(circleList)
         )
                 .isFalse();
 
@@ -57,7 +119,7 @@ public class MainWindowTest {
         final List<Circle> circleList = tripleCircleList();
 
         assertThat(
-                MainWindow.isTriple(circleList)
+                MainWindowUtils.isTriple(circleList)
         )
                 .isTrue();
 
@@ -68,7 +130,7 @@ public class MainWindowTest {
         final List<Circle> circles = checkXTrueCircleList();
 
         assertThat(
-                MainWindow.checkX(circles.get(0), circles.get(1),circles.get(2))
+                MainWindowUtils.checkX(circles.get(0), circles.get(1), circles.get(2))
         )
                 .isTrue();
     }
@@ -78,7 +140,7 @@ public class MainWindowTest {
         final List<Circle> circles = checkYTrueCircleList();
 
         assertThat(
-                MainWindow.checkY(circles.get(0), circles.get(1),circles.get(2))
+                MainWindowUtils.checkY(circles.get(0), circles.get(1), circles.get(2))
         )
                 .isTrue();
     }
@@ -88,7 +150,7 @@ public class MainWindowTest {
         final List<Circle> circles = checkXFalseCircleList();
 
         assertThat(
-                MainWindow.checkX(circles.get(0), circles.get(1),circles.get(2))
+                MainWindowUtils.checkX(circles.get(0), circles.get(1), circles.get(2))
         )
                 .isFalse();
     }
@@ -98,73 +160,9 @@ public class MainWindowTest {
         final List<Circle> circles = checkYFalseCircleList();
 
         assertThat(
-                MainWindow.checkY(circles.get(0), circles.get(1),circles.get(2))
+                MainWindowUtils.checkY(circles.get(0), circles.get(1), circles.get(2))
         )
                 .isFalse();
-    }
-
-    private static List<Circle> createCircleList() {
-        return Arrays.asList(
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build()
-        );
-    }
-
-    private static List<Circle> noTripleCircleList() {
-        return Arrays.asList(
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(false).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build()
-                );
-    }
-
-    private static List<Circle> tripleCircleList() {
-        return Arrays.asList(
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(150).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(200).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build()
-                );
-    }
-
-    private static List<Circle> checkXTrueCircleList() {
-        return Arrays.asList(
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(150).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(200).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build()
-        );
-    }
-
-    private static List<Circle> checkXFalseCircleList() {
-        return Arrays.asList(
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(120).y(200).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(250).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build()
-        );
-    }
-
-    private static List<Circle> checkYTrueCircleList() {
-        return Arrays.asList(
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(150).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(200).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build()
-        );
-    }
-
-    private static List<Circle> checkYFalseCircleList() {
-        return Arrays.asList(
-                Circle.builder().x(100).y(100).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(150).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build(),
-                Circle.builder().x(100).y(200).rad(50).color(Color.WHITE).dragged(false).inGame(true).inTreat(false).inTriple(false).build()
-        );
     }
 
 }

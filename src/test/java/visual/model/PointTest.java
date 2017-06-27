@@ -2,6 +2,7 @@ package visual.model;
 
 import org.junit.Test;
 
+import java.awt.*;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,17 +36,14 @@ public class PointTest {
         final Point point = createPoint();
 
         point.setCircle(Optional.of(
-                Circle.builder().build()
+                new Circle(0,0,0, Color.BLACK)
         ));
 
         assertThat(point.getCircle())
                 .isNotNull();
     }
 
-    public static Point createPoint() {
-        return Point.builder()
-                .x(100)
-                .y(50)
-                .build();
+    private static Point createPoint() {
+        return new Point(100,50, Optional.empty());
     }
 }

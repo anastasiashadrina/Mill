@@ -1,8 +1,5 @@
 package model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.awt.*;
 
 /**
@@ -10,8 +7,18 @@ import java.awt.*;
  * Created on 26.05.17.
  */
 
-@Data
-@AllArgsConstructor
-public class Chip {
+class Chip {
     private Color color;
+
+    public Chip(final Color color) {
+        this.color = color;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(final Color color) {
+        this.color = color;
+    }
 }
