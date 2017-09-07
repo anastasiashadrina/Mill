@@ -21,8 +21,8 @@ import static model.Constants.*;
 class MainWindow extends JFrame {
     private static final Random random = new Random();
 
-    private static final int AI_DEFEND_CHANCE = 100;
-    private static final int AI_ATTACK_CHANCE = 20;
+    private static final int AI_DISTURB_CHANCE = 100;
+    private static final int AI_COMPILE_CHANCE = 10;
 
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 600;
@@ -138,9 +138,9 @@ class MainWindow extends JFrame {
 
         Point center;
 
-        if (myEffectivePoints.size() > 0 && random.nextInt(100) < AI_ATTACK_CHANCE) {
+        if (myEffectivePoints.size() > 0 && random.nextInt(100) < AI_COMPILE_CHANCE) {
             center = (Point) myEffectivePoints.toArray()[random.nextInt(myEffectivePoints.size())];
-        } else if (enemyEffectivePoints.size() > 0 && random.nextInt(100) < AI_DEFEND_CHANCE) {
+        } else if (enemyEffectivePoints.size() > 0 && random.nextInt(100) < AI_DISTURB_CHANCE) {
             center = (Point) enemyEffectivePoints.toArray()[random.nextInt(enemyEffectivePoints.size())];
         } else {
             center = availablePoints.get(random.nextInt(availablePoints.size()));
