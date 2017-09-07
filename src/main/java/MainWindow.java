@@ -4,10 +4,8 @@ import visual.model.Quad;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,6 +20,9 @@ import static model.Constants.*;
 
 class MainWindow extends JFrame {
     private static final Random random = new Random();
+
+    private static final int AI_DEFEND_CHANCE = 60;
+    private static final int AI_ATTACK_CHANCE = 70;
 
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 600;
@@ -51,14 +52,13 @@ class MainWindow extends JFrame {
         circles = Stream.concat(whiteCircles.stream(), blackCircles.stream()).collect(Collectors.toList());
 
         quads = new ArrayList<>();
+        centers = new ArrayList<>();
 
         for (int i = 0; i < N; ++i) {
-            quads.add(
-                    new Quad(300 + i * DEFAULT_DISTANCE, 120 + i * DEFAULT_DISTANCE, 100 * (N - i))
-            );
+            Quad quad = new Quad(i, 300 + i * DEFAULT_DISTANCE, 120 + i * DEFAULT_DISTANCE, 100 * (N - i));
+            MainWindowUtils.addQuadCenters(quad, centers);
+            quads.add(quad);
         }
-
-        centers = MainWindowUtils.getQuadsCenters(quads);
 
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -97,13 +97,50 @@ class MainWindow extends JFrame {
     }
 
     void whiteMakeStep() {
-        final List<Point> collect = centers.stream()
+        final List<Point> availablePoints = centers.stream()
                 .filter(
                         center -> !center.getCircle().isPresent()
                 )
                 .collect(Collectors.toList());
 
-        final Point center = collect.get(random.nextInt(collect.size()));
+        Set<Point> enemyEffectivePoints = new HashSet<>();
+        Set<Point> myEffectivePoints = new HashSet<>();
+
+        for (Point p : availablePoints) {
+            List<Point> horiz = p.getHoriz();
+            List<Point> vert = p.getVert();
+            for (int i = 0; i < 2; i++) {
+                List<Point> near = i == 0 ? horiz : vert;
+                if (near.size() != 2) continue;
+                Point p1 = near.get(0);
+                Point p2 = near.get(1);
+                if (p1 != null && p2 != null) {
+                    if (p1.getCircle().isPresent() && p2.getCircle().isPresent()) {
+                        Color prevC = p1.getCircle().get().getColor();
+                        Color nextC = p2.getCircle().get().getColor();
+                        if (prevC.equals(nextC)) {
+                            if (prevC.equals(Color.BLACK)) {
+                                enemyEffectivePoints.add(p);
+                            } else if (prevC.equals(Color.WHITE)) {
+                                myEffectivePoints.add(p);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        Point center;
+
+        if (myEffectivePoints.size() > 0 && random.nextInt(100) < AI_ATTACK_CHANCE) {
+            center = (Point) myEffectivePoints.toArray()[random.nextInt(myEffectivePoints.size())];
+        } else if (enemyEffectivePoints.size() > 0 && random.nextInt(100) < AI_DEFEND_CHANCE) {
+            center = (Point) enemyEffectivePoints.toArray()[random.nextInt(enemyEffectivePoints.size())];
+        } else {
+            center = availablePoints.get(random.nextInt(availablePoints.size()));
+        }
+
         final Optional<Circle> first = whiteCircles.stream()
                 .filter(c -> !c.isInGame())
                 .findFirst();

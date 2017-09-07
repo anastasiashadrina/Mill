@@ -1,5 +1,7 @@
 package visual.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -10,6 +12,8 @@ import java.util.Optional;
 public class Point {
     private final int x;
     private final int y;
+    private List<Point> horiz = new ArrayList<>();
+    private List<Point> vert = new ArrayList<>();
 
     private Optional<Circle> circle;
 
@@ -34,4 +38,8 @@ public class Point {
     public void setCircle(final Optional<Circle> circle) {
         this.circle = circle;
     }
+
+    public List<Point> getHoriz() { return horiz; }
+
+    public List<Point> getVert() { return vert; }
 }
