@@ -21,8 +21,8 @@ import static model.Constants.*;
 class MainWindow extends JFrame {
     private static final Random random = new Random();
 
-    private static final int AI_DEFEND_CHANCE = 60;
-    private static final int AI_ATTACK_CHANCE = 70;
+    private static final int AI_DEFEND_CHANCE = 100;
+    private static final int AI_ATTACK_CHANCE = 20;
 
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 600;
@@ -55,7 +55,7 @@ class MainWindow extends JFrame {
         centers = new ArrayList<>();
 
         for (int i = 0; i < N; ++i) {
-            Quad quad = new Quad(i, 300 + i * DEFAULT_DISTANCE, 120 + i * DEFAULT_DISTANCE, 100 * (N - i));
+            Quad quad = new Quad(i,300 + i * DEFAULT_DISTANCE, 120 + i * DEFAULT_DISTANCE, 100 * (N - i));
             MainWindowUtils.addQuadCenters(quad, centers);
             quads.add(quad);
         }
@@ -96,6 +96,29 @@ class MainWindow extends JFrame {
                         blackCircles.stream().allMatch(Circle::isInGame);
     }
 
+    void analyzeTrio(List<Point> pair, Point p, Set<Point> enemyEffectivePoints, Set<Point> myEffectivePoints) {
+        if (p == null || pair == null || pair.size() != 2) {
+            return;
+        }
+
+        Point p1 = pair.get(0);
+        Point p2 = pair.get(1);
+        if (p1 == null || !p1.getCircle().isPresent() || p2 == null || !p2.getCircle().isPresent()) {
+            return;
+        }
+
+        Color c = p1.getCircle().get().getColor();
+        if (!p2.getCircle().get().getColor().equals(c)) {
+            return;
+        }
+
+        if (c.equals(Color.BLACK)) {
+            enemyEffectivePoints.add(p);
+        } else if (c.equals(Color.WHITE)) {
+            myEffectivePoints.add(p);
+        }
+    }
+
     void whiteMakeStep() {
         final List<Point> availablePoints = centers.stream()
                 .filter(
@@ -109,26 +132,8 @@ class MainWindow extends JFrame {
         for (Point p : availablePoints) {
             List<Point> horiz = p.getHoriz();
             List<Point> vert = p.getVert();
-            for (int i = 0; i < 2; i++) {
-                List<Point> near = i == 0 ? horiz : vert;
-                if (near.size() != 2) continue;
-                Point p1 = near.get(0);
-                Point p2 = near.get(1);
-                if (p1 != null && p2 != null) {
-                    if (p1.getCircle().isPresent() && p2.getCircle().isPresent()) {
-                        Color prevC = p1.getCircle().get().getColor();
-                        Color nextC = p2.getCircle().get().getColor();
-                        if (prevC.equals(nextC)) {
-                            if (prevC.equals(Color.BLACK)) {
-                                enemyEffectivePoints.add(p);
-                            } else if (prevC.equals(Color.WHITE)) {
-                                myEffectivePoints.add(p);
-                            }
-                        }
-                    }
-                }
-            }
-
+            analyzeTrio(horiz, p, enemyEffectivePoints, myEffectivePoints);
+            analyzeTrio(vert, p, enemyEffectivePoints, myEffectivePoints);
         }
 
         Point center;
