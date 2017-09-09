@@ -182,18 +182,49 @@ class Listener
                             }
                     );
         } else if (state == State.GAME) {
-            final Optional<Circle> any = blackCircles.stream().filter(Circle::isDragged).findAny();
+            final AtomicBoolean isWhiteMakeStep = new AtomicBoolean(false);
+            blackCircles.stream()
+                    .filter(Circle::isDragged)
+                    .forEach(
+                            c -> {
+                                final Optional<Point> old = centers.stream()
+                                        .filter(
+                                                circle -> circle.getCircle().isPresent() && circle.getCircle().get()
+                                                        .equals(c)
+                                        )
+                                        .findFirst();
 
-            if (!any.isPresent()) {
-                throw new IllegalArgumentException("Optional is not present");
+                                old.ifPresent(point -> point.setCircle(Optional.empty()));
+
+                                if (!isInPosition(c)) {
+                                    c.setX(curCircle.getX());
+                                    c.setY(curCircle.getY());
+                                } else {
+                                    isWhiteMakeStep.set(true);
+                                    c.setInGame(true);
+                                }
+                                c.release();
+                            }
+                    );
+
+            if (MainWindowUtils.isTriple(blackCircles)) {
+                final int n = JOptionPane.showConfirmDialog(
+                        mainWindow,
+                        "Хотите убрать у белых фишку?",
+                        "Три в ряд",
+                        JOptionPane.YES_NO_OPTION);
+
+                if (n == 0) {
+                    state = State.REMOVE_CIRCLE;
+                }
             }
 
-            final Circle circle = any.get();
-            if (!isCanGameStep(circle)) {
-                circle.setX(curCircle.getX());
-                circle.setY(curCircle.getY());
+            if (state != State.REMOVE_CIRCLE && isWhiteMakeStep.get()) {
+                mainWindow.whiteMakeStep();
             }
-            circle.release();
+            if (MainWindowUtils.isTriple(whiteCircles)) {
+                mainWindow.whiteRemoveBlackCircle();
+            }
         }
 
         mainWindow.repaint();

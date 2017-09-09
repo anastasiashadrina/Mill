@@ -55,7 +55,7 @@ class MainWindow extends JFrame {
         centers = new ArrayList<>();
 
         for (int i = 0; i < N; ++i) {
-            Quad quad = new Quad(i,300 + i * DEFAULT_DISTANCE, 120 + i * DEFAULT_DISTANCE, 100 * (N - i));
+            Quad quad = new Quad(300 + i * DEFAULT_DISTANCE, 120 + i * DEFAULT_DISTANCE, 100 * (N - i));
             MainWindowUtils.addQuadCenters(quad, centers);
             quads.add(quad);
         }
@@ -82,6 +82,15 @@ class MainWindow extends JFrame {
 
         if (any.isPresent()) {
             final Circle circle = any.get();
+
+            final Optional<Point> old = centers.stream()
+                    .filter(
+                            c -> c.getCircle().isPresent() && c.getCircle().get()
+                                    .equals(circle)
+                    )
+                    .findFirst();
+
+            old.ifPresent(point -> point.setCircle(Optional.empty()));
 
             circle.setInTreat(true);
 
@@ -151,13 +160,35 @@ class MainWindow extends JFrame {
                 .findFirst();
 
         if (first.isPresent()) {
+            final Optional<Point> old = centers.stream()
+                    .filter(
+                            circle -> circle.getCircle().isPresent() && first.equals(circle.getCircle())
+                    )
+                    .findFirst();
+
+            old.ifPresent(point -> point.setCircle(Optional.empty()));
+
             center.setCircle(first);
             final Circle c = first.get();
             c.setInGame(true);
             c.setX(center.getX());
             c.setY(center.getY());
         } else {
-            System.out.println("ERROR!!!");
+            final Circle c = MainWindowUtils.inGameCircles(whiteCircles).get(random.nextInt(MainWindowUtils
+                    .inGameCircles(whiteCircles).size()));
+
+            final Optional<Point> old = centers.stream()
+                    .filter(
+                            circle -> circle.getCircle().isPresent() && c.equals(circle.getCircle().get())
+                    )
+                    .findFirst();
+
+            old.ifPresent(point -> point.setCircle(Optional.empty()));
+
+            final Optional<Circle> optional = Optional.of(c);
+            center.setCircle(optional);
+            c.setX(center.getX());
+            c.setY(center.getY());
         }
     }
 

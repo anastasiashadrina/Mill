@@ -6,7 +6,6 @@ package visual.model;
  */
 
 public class Quad {
-    private final int id;
     private final int x;
     private final int y;
     private final int size;
@@ -19,8 +18,7 @@ public class Quad {
         return x + size/2;
     }
 
-    public Quad(final int id, final int x, final int y, final int size) {
-        this.id = id;
+    public Quad(final int x, final int y, final int size) {
         this.x = x;
         this.y = y;
         this.size = size;
@@ -37,7 +35,5 @@ public class Quad {
     public int getSize() {
         return size;
     }
-
-    public int getId() { return id; }
 
 }
